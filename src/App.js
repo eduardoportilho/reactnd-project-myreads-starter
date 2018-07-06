@@ -17,19 +17,31 @@ class BooksApp extends React.Component {
   state = {
     books: [],
     error: undefined,
+    loading: false,
   }
 
   /**
    * Load the books when the component loads.
    */
-	componentDidMount = async () => {
+  componentDidMount = async () => {
+    this.setState({ loading: true })
+    this.fetchBooks()
+  }
+  
+  fetchBooks = async () => {
     try {
       const books = await BooksAPI.getAll()
       // Handle empty fields and empty responses
-			this.setState(sanitizeBookData(books))
+			this.setState({
+        loading: false,
+        ...sanitizeBookData(books)
+      })
     } catch(error) {
       // Display errors from the API on the UI
-			this.setState({ error })
+			this.setState({
+        loading: false,
+        error
+      })
     }
   }
   
@@ -38,28 +50,31 @@ class BooksApp extends React.Component {
    * @param changingBook - A book.
    * @param shelf - The shelf where the book should be added.
    */
-  onBookShelfAddOrChange = (changingBook, shelf) => {
-    const { books } = this.state
-    // Remove the book from the shelf if it is there
-    const shelfIndex = books.findIndex(bookOnShelf => changingBook.id === bookOnShelf.id)
-    if (shelfIndex > -1) {
-      books.splice(shelfIndex, 1);
+  onBookShelfAddOrChange = async (changingBook, shelf) => {
+    try {
+      this.setState({ loading: true })
+      // Update the shelf on the API and fetch the books again
+      await BooksAPI.update(changingBook, shelf)
+      this.fetchBooks()
+    } catch(error) {
+      // Display errors from the API on the UI
+			this.setState({
+        loading: false,
+        error
+      })
     }
-    // Change shelf
-    changingBook.shelf = shelf
-    // Add the updated book to the shelf
-    this.setState({ 
-      books: books.concat(changingBook)
-    })
   }
 
   render() {
-    const { books, error } = this.state
+    const { books, error, loading } = this.state
     return (
       <Router>
         <div>
           { error && (
             <div className="error-msg">{error}</div>
+          )}
+          { loading && (
+            <div className="loading">Loading&#8230;</div>
           )}
           <Route exact path="/" render={_ => (
             <MainPage books={books} onBookShelfChange={this.onBookShelfAddOrChange} />

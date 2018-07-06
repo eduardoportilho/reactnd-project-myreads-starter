@@ -12,6 +12,7 @@ class SearchPage extends React.Component {
   state = {
     books: [],
     error: undefined,
+    loading: false,
   }
 
   /**
@@ -20,16 +21,21 @@ class SearchPage extends React.Component {
    */
   onSearchQueryChange = async (event) => {
     try {
+      this.setState({ loading: true })
       const query = event.target.value
       // Handle empty fields and empty responses
       const { books } = sanitizeBookData(await BooksAPI.search(query))
       // Update the shelves of the books and update the state
 			this.setState({ 
+        loading: false,
         books: this.updateBookShelves(books)
       })
     } catch(error) {
       // Display errors from the API on the UI
-			this.setState({ error })
+			this.setState({
+        loading: false,
+        error
+      })
     }
   }
 
@@ -46,11 +52,14 @@ class SearchPage extends React.Component {
 
   render() {
     const { onBookShelfAdd } = this.props
-    const { books, error } = this.state
+    const { books, error, loading } = this.state
     return (
       <div className="app">
         { error && (
           <div className="error-msg">{error}</div>
+        )}
+        { loading && (
+          <div className="loading">Loading&#8230;</div>
         )}
           <div className="search-books">
             <div className="search-books-bar">
