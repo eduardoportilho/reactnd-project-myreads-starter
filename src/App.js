@@ -17,7 +17,7 @@ class BooksApp extends React.Component {
   state = {
     books: [],
     error: undefined,
-    loading: false,
+    loading: false
   }
 
   /**
@@ -34,7 +34,7 @@ class BooksApp extends React.Component {
       // Handle empty fields and empty responses
 			this.setState({
         loading: false,
-        ...sanitizeBookData(books)
+        books: sanitizeBookData(books)
       })
     } catch(error) {
       // Display errors from the API on the UI
@@ -80,7 +80,7 @@ class BooksApp extends React.Component {
             <MainPage books={books} onBookShelfChange={this.onBookShelfAddOrChange} />
           )}/>
           <Route path="/search" render={_ => (
-            <SearchPage booksOnShelf={books} onBookShelfAdd={this.onBookShelfAddOrChange}/>
+            <SearchPage booksOnShelf={books} onBookShelfChange={this.onBookShelfAddOrChange}/>
           )}/>
         </div>
       </Router>

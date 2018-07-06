@@ -10,9 +10,9 @@ import { sanitizeBookData } from './utils'
  */
 class SearchPage extends React.Component {
   state = {
-    books: [],
+    searchBooks: [],
     error: undefined,
-    loading: false,
+    loading: false
   }
 
   /**
@@ -24,11 +24,10 @@ class SearchPage extends React.Component {
       this.setState({ loading: true })
       const query = event.target.value
       // Handle empty fields and empty responses
-      const { books } = sanitizeBookData(await BooksAPI.search(query))
-      // Update the shelves of the books and update the state
+      const books = sanitizeBookData(await BooksAPI.search(query))
 			this.setState({ 
         loading: false,
-        books: this.updateBookShelves(books)
+        searchBooks: books
       })
     } catch(error) {
       // Display errors from the API on the UI
@@ -41,18 +40,21 @@ class SearchPage extends React.Component {
 
   /**
    * Update the shelf of the books returned by the search using the app state.
+   * @param {Object[]} searchBooks - Books returned from the search
+   * @param {Object[]} booksOnShelf - Books on the user's shelves
+   * @return {Object[]} updatedBooks - Books with the updated shelf.
    */
-  updateBookShelves = (books) => {
-    const { booksOnShelf } = this.props
-    return books.map(book => {
+  updateBookShelves = (searchBooks, booksOnShelf) => {
+    return searchBooks.map(book => {
       // If the book is on any shelf, use the shelf instance
       return booksOnShelf.find(bookOnShelf => book.id === bookOnShelf.id) || book
     })
   }
 
   render() {
-    const { onBookShelfAdd } = this.props
-    const { books, error, loading } = this.state
+    const { onBookShelfChange, booksOnShelf } = this.props
+    const { searchBooks, error, loading } = this.state
+    const updatedBooks = this.updateBookShelves(searchBooks, booksOnShelf)
     return (
       <div className="app">
         { error && (
@@ -77,10 +79,10 @@ class SearchPage extends React.Component {
             </div>
             <div className="search-books-results">
               <ol className="books-grid">
-                { books.map((book, index) => (
-                  <li key={index}>
+                { updatedBooks.map(book => (
+                  <li key={book.id}>
                     <Book
-                      onShelfChange={onBookShelfAdd}
+                      onShelfChange={onBookShelfChange}
                       book={book}
                     />
                   </li>
