@@ -17,29 +17,12 @@ class SearchPage extends React.Component {
       const books = await BooksAPI.search(query)
 			this.setState(sanitizeBookData(books))
     } catch(error) {
-      console.log(`>>>`, error)
 			this.setState({ error })
     }
-
-  }
-
-
-  onBookShelfChange = (changingBook, shelf) => {
-    const { books } = this.state
-    this.setState({ 
-      books: books.map(book => {
-        if (book === changingBook) {
-          return {
-            ...book,
-            shelf,
-          }
-        }
-        return book
-      })
-    })
   }
 
   render() {
+    const { onBookShelfAdd } = this.props
     const { books, error } = this.state
     return (
       <div className="app">
@@ -72,7 +55,7 @@ class SearchPage extends React.Component {
                 { books.map((book, index) => (
                   <li key={index}>
                     <Book
-                      onShelfChange={this.onBookShelfChange}
+                      onShelfChange={onBookShelfAdd}
                       book={book}
                     />
                   </li>
