@@ -6,8 +6,20 @@ import {
   NONE,
 } from './bookShelves'
 
-function Book(props) {
-  const { book, onShelfChange } = props
+/**
+ * Book component with image and shelf selector.
+ * @param {Object} props
+ * @param {Object} props.book - The book object.
+ * @param {string} props.book.id - The book ID.
+ * @param {string} props.book.title - The book title.
+ * @param {string} props.book.image - The book image URL.
+ * @param {string} props.book.shelf - The shelf of the book.
+ * @param {string[]} props.book.authors - List of authors of the book.
+ * @param {function} props.onShelfChange - The callback to be executed to change the book shelf.
+ */
+function Book({ book, onShelfChange }) {
+
+  // Get the selected shelf and call the callback.
   const onBookShelfChange = (book) => (event) => {
     const shelf = event.target.value
     onShelfChange(book, shelf)

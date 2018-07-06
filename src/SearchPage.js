@@ -5,25 +5,37 @@ import * as BooksAPI from './BooksAPI'
 import Book from './Book'
 import { sanitizeBookData } from './utils'
 
+/**
+ * Search page component.
+ */
 class SearchPage extends React.Component {
   state = {
     books: [],
     error: undefined,
   }
 
+  /**
+   * Search for books with the query when the search input value changes.
+   * @param {SyntheticEvent} event
+   */
   onSearchQueryChange = async (event) => {
     try {
       const query = event.target.value
+      // Handle empty fields and empty responses
       const { books } = sanitizeBookData(await BooksAPI.search(query))
+      // Update the shelves of the books and update the state
 			this.setState({ 
         books: this.updateBookShelves(books)
       })
     } catch(error) {
-      console.log(`>>>`, error)
+      // Display errors from the API on the UI
 			this.setState({ error })
     }
   }
 
+  /**
+   * Update the shelf of the books returned by the search using the app state.
+   */
   updateBookShelves = (books) => {
     const { booksOnShelf } = this.props
     return books.map(book => {
@@ -44,14 +56,7 @@ class SearchPage extends React.Component {
             <div className="search-books-bar">
               <Link className="close-search" to="/">Close</Link>
               <div className="search-books-input-wrapper">
-                {/*
-                  NOTES: The search from BooksAPI is limited to a particular set of search terms.
-                  You can find these search terms here:
-                  https://github.com/udacity/reactnd-project-myreads-starter/blob/master/SEARCH_TERMS.md
-
-                  However, remember that the BooksAPI.search method DOES search by title or author. So, don't worry if
-                  you don't find a specific author or title. Every search is limited by search terms.
-                */}
+                {/* Using DebounceInput to avoid making several queries to the API while typing */}
                 <DebounceInput
                   type="text"
                   placeholder="Search by title or author"

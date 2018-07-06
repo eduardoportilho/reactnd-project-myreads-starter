@@ -3,10 +3,14 @@ import { Link } from 'react-router-dom'
 import Bookshelf from './Bookshelf'
 import { bookShelves as shelves } from './bookShelves'
 
+/**
+ * Main page for the aplication.
+ */
 class MainPage extends React.Component {
 
   render() {
     const { books, onBookShelfChange } = this.props
+    // Split the books by shelves
     const bookShelves = shelves.map(shelf => ({
       books: books.filter(book => book.shelf === shelf.key),
       ...shelf
