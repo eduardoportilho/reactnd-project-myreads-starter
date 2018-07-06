@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import * as BooksAPI from './BooksAPI'
 import Bookshelf from './Bookshelf'
 import { bookShelves as shelves } from './bookShelves'
+import { sanitizeBookData } from './utils'
 
 class MainPage extends React.Component {
   state = {
@@ -13,21 +14,13 @@ class MainPage extends React.Component {
 	componentDidMount = async () => {
     try {
       const books = await BooksAPI.getAll()
-			this.setState({ 
-        books: books.map(book => ({
-          title: book.title,
-          authors: book.authors,
-          shelf: book.shelf,
-          image: book.imageLinks.thumbnail,
-        }))
-      })
+			this.setState(sanitizeBookData(books))
     } catch(error) {
-      console.log(`Error`, error)
 			this.setState({ error })
     }
   }
   
-  handleBookShelfChange = (changingBook, shelf) => {
+  onBookShelfChange = (changingBook, shelf) => {
     const { books } = this.state
     this.setState({ 
       books: books.map(book => {
@@ -52,7 +45,7 @@ class MainPage extends React.Component {
     return (
       <div className="app">
         { error && (
-          <div>{error}</div>
+          <div className="error-msg">{error}</div>
         )}
         <div className="list-books">
           <div className="list-books-title">
@@ -62,7 +55,7 @@ class MainPage extends React.Component {
             <div>
               { bookShelves.map(shelf => (
                   <Bookshelf 
-                    onShelfChange={this.handleBookShelfChange}
+                    onShelfChange={this.onBookShelfChange}
                     {...shelf}
                   />
               ))}
