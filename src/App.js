@@ -25,28 +25,18 @@ class BooksApp extends React.Component {
     }
   }
   
-  onBookShelfChange = (changingBook, shelf) => {
+  onBookShelfAddOrChange = (changingBook, shelf) => {
     const { books } = this.state
+    // Remove the book from the shelf if it is there
+    const shelfIndex = books.findIndex(bookOnShelf => changingBook.id === bookOnShelf.id)
+    if (shelfIndex > -1) {
+      books.splice(shelfIndex, 1);
+    }
+    // Change shelf
+    changingBook.shelf = shelf
+    // Add the updated book to the shelf
     this.setState({ 
-      books: books.map(book => {
-        if (book === changingBook) {
-          return {
-            ...book,
-            shelf,
-          }
-        }
-        return book
-      })
-    })
-  }
-  
-  onBookShelfAdd = (newBook, shelf) => {
-    const { books } = this.state
-    this.setState({ 
-      books: books.concat({
-        ...newBook,
-        shelf
-      })
+      books: books.concat(changingBook)
     })
   }
 
@@ -59,10 +49,10 @@ class BooksApp extends React.Component {
             <div className="error-msg">{error}</div>
           )}
           <Route exact path="/" render={(props) => (
-            <MainPage {...props} books={books} onBookShelfChange={this.onBookShelfChange} />
+            <MainPage books={books} onBookShelfChange={this.onBookShelfAddOrChange} />
           )}/>
           <Route path="/search" render={(props) => (
-            <SearchPage onBookShelfAdd={this.onBookShelfAdd}/>
+            <SearchPage booksOnShelf={books} onBookShelfAdd={this.onBookShelfAddOrChange}/>
           )}/>
         </div>
       </Router>

@@ -14,11 +14,22 @@ class SearchPage extends React.Component {
   onSearchQueryChange = async (event) => {
     try {
       const query = event.target.value
-      const books = await BooksAPI.search(query)
-			this.setState(sanitizeBookData(books))
+      const { books } = sanitizeBookData(await BooksAPI.search(query))
+			this.setState({ 
+        books: this.updateBookShelves(books)
+      })
     } catch(error) {
+      console.log(`>>>`, error)
 			this.setState({ error })
     }
+  }
+
+  updateBookShelves = (books) => {
+    const { booksOnShelf } = this.props
+    return books.map(book => {
+      // If the book is on any shelf, use the shelf instance
+      return booksOnShelf.find(bookOnShelf => book.id === bookOnShelf.id) || book
+    })
   }
 
   render() {
