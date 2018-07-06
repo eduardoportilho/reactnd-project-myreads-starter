@@ -2,21 +2,7 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import * as BooksAPI from './BooksAPI'
 import Bookshelf from './Bookshelf'
-
-const SHELVES = [
-  {
-    key: 'currentlyReading',
-    title: 'Currently Reading'
-  },
-  {
-    key: 'read',
-    title: 'Read'
-  },
-  {
-    key: 'wantToRead',
-    title: 'Want to Read'
-  }
-]
+import { bookShelves as shelves } from './bookShelves'
 
 class MainPage extends React.Component {
   state = {
@@ -39,11 +25,26 @@ class MainPage extends React.Component {
       console.log(`Error`, error)
 			this.setState({ error })
     }
-	}
+  }
+  
+  handleBookShelfChange = (changingBook, shelf) => {
+    const { books } = this.state
+    this.setState({ 
+      books: books.map(book => {
+        if (book === changingBook) {
+          return {
+            ...book,
+            shelf,
+          }
+        }
+        return book
+      })
+    })
+  }
 
   render() {
     const { books, error } = this.state
-    const bookShelves = SHELVES.map(shelf => ({
+    const bookShelves = shelves.map(shelf => ({
       books: books.filter(book => book.shelf === shelf.key),
       ...shelf
     }))
@@ -60,7 +61,10 @@ class MainPage extends React.Component {
           <div className="list-books-content">
             <div>
               { bookShelves.map(shelf => (
-                  <Bookshelf {...shelf} />
+                  <Bookshelf 
+                    onShelfChange={this.handleBookShelfChange}
+                    {...shelf}
+                  />
               ))}
             </div>
           </div>
